@@ -1,0 +1,36 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model Employee {
+  id         String         @id @default(uuid())
+  fullName   String
+  email      String         @unique
+  jobTitle   String
+  department String
+  country    String         @db.VarChar(2)
+  currency   String         @db.VarChar(3)
+  /// Annual salary in whole units of `currency` (no minor units).
+  salary     Int
+  hireDate   DateTime       @db.Date
+  status     EmployeeStatus @default(ACTIVE)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@index([country, department])
+  @@index([country, jobTitle])
+  @@index([department])
+  @@index([status])
+  @@map("employees")
+}
