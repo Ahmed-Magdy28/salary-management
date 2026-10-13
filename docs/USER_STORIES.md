@@ -100,7 +100,7 @@
 **As an** HR Manager, **I want to** see the same statistics per job title within a country, **so that** I can check that equivalent roles are paid consistently.
 
 **Acceptance criteria**
-- I pick a country to scope the view, since titles are only comparable within one currency.
+- A country scope is required, since titles are only comparable within one currency.
 - Each row shows headcount, min, median, mean, and max.
 - Titles with very few employees are flagged as low-sample.
 
@@ -108,7 +108,7 @@
 **As an** HR Manager, **I want to** see the same statistics per department, **so that** I understand pay levels by function.
 
 **Acceptance criteria**
-- Same statistics as US-3.2, with an optional country scope.
+- Same statistics as US-3.2, scoped to one country (required, so currencies are never mixed).
 
 ### US-3.5 Percentile bands (P1)
 **As an** HR Manager, **I want to** see P25 and P75 next to the median, **so that** I can tell the typical range from outliers.

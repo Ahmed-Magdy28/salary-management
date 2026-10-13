@@ -9,11 +9,13 @@ export const salaryStatsQuerySchema = z
     country: z.enum(COUNTRY_CODES).optional(),
   })
   .superRefine((q, ctx) => {
-    if (q.groupBy === "jobTitle" && !q.country) {
+    // Salaries are in local currency, so anything other than a per-country view
+    // needs a country scope to avoid mixing currencies.
+    if (q.groupBy !== "country" && !q.country) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["country"],
-        message: "Select a country: job titles are only comparable within one currency",
+        message: "Select a country: figures are only comparable within one currency",
       });
     }
   });

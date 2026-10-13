@@ -1,14 +1,13 @@
 import { distributionQuerySchema, salaryStatsQuerySchema } from "../src";
 
 describe("salaryStatsQuerySchema", () => {
-  it("accepts country and department grouping without a country scope", () => {
+  it("accepts country grouping without a country scope", () => {
     expect(salaryStatsQuerySchema.safeParse({ groupBy: "country" }).success).toBe(true);
-    expect(salaryStatsQuerySchema.safeParse({ groupBy: "department" }).success).toBe(true);
   });
 
-  it("requires a country for job title grouping", () => {
-    expect(salaryStatsQuerySchema.safeParse({ groupBy: "jobTitle" }).success).toBe(false);
-    expect(salaryStatsQuerySchema.safeParse({ groupBy: "jobTitle", country: "DE" }).success).toBe(true);
+  it.each(["department", "jobTitle"])("requires a country for %s grouping (no mixed currencies)", (groupBy) => {
+    expect(salaryStatsQuerySchema.safeParse({ groupBy }).success).toBe(false);
+    expect(salaryStatsQuerySchema.safeParse({ groupBy, country: "DE" }).success).toBe(true);
   });
 });
 
