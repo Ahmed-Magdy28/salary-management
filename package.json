@@ -10,10 +10,15 @@
     "typecheck": "turbo run typecheck",
     "db:generate": "pnpm --filter @salary/db generate",
     "db:migrate": "pnpm --filter @salary/db migrate",
-    "db:seed": "pnpm --filter @salary/db seed"
+    "db:seed": "pnpm --filter @salary/db seed",
+    "db:migrate:deploy": "pnpm --filter @salary/db migrate:deploy",
+    "db:seed:ci": "pnpm --filter @salary/db seed:ci"
   },
   "devDependencies": {
     "turbo": "^2.3.0",
     "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

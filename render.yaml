@@ -1,0 +1,16 @@
+# Render blueprint for the API. The database is hosted on Neon (set DATABASE_URL in the dashboard).
+services:
+  - type: web
+    name: salary-api
+    runtime: node
+    plan: free
+    healthCheckPath: /api/health
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm turbo run build --filter=@salary/api && pnpm --filter @salary/db migrate:deploy
+    startCommand: node apps/api/dist/main.js
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATABASE_URL
+        sync: false
+      - key: WEB_ORIGIN
+        sync: false
