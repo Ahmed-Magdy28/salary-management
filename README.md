@@ -22,6 +22,7 @@ docker compose up -d        # PostgreSQL 16 only (apps run locally)
 cp .env.example .env
 pnpm install
 pnpm --filter @salary/db generate
+pnpm --filter @salary/shared build
 pnpm db:migrate             # applies prisma/migrations
 pnpm db:seed                # 10,000 employees, ~3 s, reproducible
 pnpm test                   # unit tests, no database needed
