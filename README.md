@@ -2,7 +2,7 @@
 
 Web app for an HR Manager to manage salaries for 10,000 employees across countries and to answer "how do we pay people?".
 
-Docs: [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md) · [`docs/USER_STORIES.md`](docs/USER_STORIES.md)
+Docs: [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md) · [`docs/USER_STORIES.md`](docs/USER_STORIES.md) · [`docs/DESIGN_NOTES.md`](docs/DESIGN_NOTES.md) · [`docs/wireframes`](docs/wireframes/README.md)
 
 ## Stack
 
@@ -10,7 +10,7 @@ Turborepo + pnpm monorepo
 
 | Workspace | What |
 |-----------|------|
-| `apps/web` | Next.js, Tailwind, TanStack Query *(next milestone)* |
+| `apps/web` | Next.js (App Router), Tailwind, TanStack Query, Recharts, shadcn-style components |
 | `apps/api` | NestJS on Express, REST under `/api` |
 | `packages/db` | Prisma schema and migrations, Prisma client factory, Faker seed script |
 | `packages/shared` | Zod schemas, DTO types, constants shared by web and api |
@@ -29,9 +29,16 @@ pnpm --filter @salary/api test:e2e   # API tests, need the test database
 ```
 
 Create the test database once: `docker compose exec db createdb -U postgres salary_test`, then apply the migration to it with `DATABASE_URL=<test url> pnpm --filter @salary/db migrate:deploy`.
-Run the API with `pnpm --filter @salary/api dev` (http://localhost:4000/api).
+Run everything with `pnpm dev`, or separately: API `pnpm --filter @salary/api dev` (http://localhost:4000/api) and web `pnpm --filter @salary/web dev` (http://localhost:3000).
 
 Seed options: `SEED_COUNT` (default 10000) and `SEED_VALUE` (default 20261014) environment variables.
+
+## Screens
+
+- **Employees** (`/employees`): search, filters, salary range, sort, pagination, add, edit, deactivate. Filters live in the URL.
+- **Add / edit** (`/employees/new`, `/employees/:id/edit`): one form, validated with the shared schema.
+- **Insights** (`/insights`): headline counts and min / P25 / median / mean / P75 / max by country, department or job title.
+- **Pay spread** (`/pay-spread`): salary histogram for a country and optional job title.
 
 ## Decisions
 
