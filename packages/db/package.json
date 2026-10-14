@@ -7,14 +7,14 @@
   "scripts": {
     "generate": "prisma generate",
     "migrate": "dotenv -e ../../.env -- prisma migrate dev",
-    "migrate:deploy": "dotenv -e ../../.env -- prisma migrate deploy",
+    "migrate:deploy": "prisma migrate deploy",
     "migrate:reset": "dotenv -e ../../.env -- prisma migrate reset --force --skip-seed",
     "seed": "dotenv -e ../../.env -- tsx src/seed/run.ts",
     "build": "prisma generate && tsc -p tsconfig.build.json",
     "test": "jest",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "seed:ci": "tsx src/seed/run.ts",
-    "seed:if-empty": "dotenv -e ../../.env -- tsx src/seed/run.ts --if-empty"
+    "seed:if-empty": "tsx src/seed/run.ts --if-empty"
   },
   "dependencies": {
     "@prisma/adapter-pg": "6",

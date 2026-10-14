@@ -13,7 +13,8 @@
     "db:generate": "pnpm --filter @salary/db generate",
     "db:migrate": "pnpm --filter @salary/db migrate",
     "db:seed": "pnpm --filter @salary/db seed",
-    "db:migrate:deploy": "pnpm --filter @salary/db migrate:deploy",
+    "db:migrate:deploy": "pnpm --filter @salary/db exec dotenv -e ../../.env -- prisma migrate deploy",
+    "db:seed:if-empty": "pnpm --filter @salary/db exec dotenv -e ../../.env -- tsx src/seed/run.ts --if-empty",
     "db:seed:ci": "pnpm --filter @salary/db seed:ci"
   },
   "devDependencies": {
