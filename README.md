@@ -28,7 +28,7 @@ pnpm test                   # unit tests, no database needed
 pnpm --filter @salary/api test:e2e   # API tests, need the test database
 ```
 
-Create the test database once: `docker compose exec db createdb -U postgres salary_test`, then apply the migration to it with `DATABASE_URL=<test url> pnpm --filter @salary/db migrate:deploy`.
+The e2e command creates the `salary_test` database and applies the migrations by itself (it refuses to run against any database whose name does not contain "test"). Set `TEST_DATABASE_URL` to use a different one.
 Run everything with `pnpm dev`, or separately: API `pnpm --filter @salary/api dev` (http://localhost:4000/api) and web `pnpm --filter @salary/web dev` (http://localhost:3000).
 
 Seed options: `SEED_COUNT` (default 10000) and `SEED_VALUE` (default 20261014) environment variables.
@@ -69,3 +69,11 @@ Percentiles use PostgreSQL `percentile_cont`; histogram bands use `width_bucket`
 Neon (Postgres) + Render (API) + Vercel (web). Step-by-step guide: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md). CI runs build, typecheck, unit and e2e tests on every push (`.github/workflows/ci.yml`).
 
 Useful scripts without a `.env` file (the platform provides `DATABASE_URL`): `pnpm db:migrate:deploy` and `pnpm db:seed:ci`.
+
+## Performance notes
+
+- The API answers every endpoint in about 6 to 40 ms at 10,000 rows (list, search, filters, percentiles, distribution).
+- `pnpm dev` compiles each page the first time you open it, so first visits feel slow. Judge real speed with a production build:
+  `pnpm --filter @salary/web build && pnpm --filter @salary/web start`.
+- The chart library loads only on the Pay spread page, the confirm dialog loads after the page, filter changes update the URL without a server round trip, and table rows do not re-render when a dialog opens.
+- Browser extensions such as Grammarly add attributes to the page and can slow large tables and forms. Test in a private window if something feels slow. The app ignores extension-added attributes on `<html>` and `<body>` so React does not discard the server-rendered page.

@@ -33,7 +33,5 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Build, typecheck and unit tests
         run: pnpm turbo run build typecheck test
-      - name: Apply migrations to the test database
-        run: pnpm db:migrate:deploy
-      - name: API end-to-end tests
+      - name: API end-to-end tests (creates and migrates the test database)
         run: pnpm --filter @salary/api test:e2e

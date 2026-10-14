@@ -3,6 +3,7 @@
 import type { EmployeeDto } from "@salary/shared";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import Link from "next/link";
+import { memo } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { Button } from "@/components/ui/button";
 import type { SortField } from "@/lib/employee-query-state";
@@ -44,24 +45,10 @@ function SortHeader({ field, label, props, align }: { field: SortField; label: s
   );
 }
 
-export function EmployeeTable(props: Props) {
-  const { rows, onToggleStatus } = props;
+/** Memoized so opening a dialog or changing page state does not re-render every row. */
+const EmployeeRow = memo(function EmployeeRow({ employee: e, onToggleStatus }: { employee: EmployeeDto; onToggleStatus: (employee: EmployeeDto) => void }) {
   return (
-    <div className="overflow-x-auto" role="table" aria-label="Employees">
-      <div className="min-w-[1040px]">
-        <div role="row" className={cn(GRID, "items-center border-b border-line bg-slate-50 py-1 text-[13px] font-semibold uppercase tracking-wide text-muted")}>
-          <SortHeader field="fullName" label="Employee" props={props} />
-          <div role="columnheader">Job title</div>
-          <div role="columnheader">Department</div>
-          <div role="columnheader">Country</div>
-          <SortHeader field="salary" label="Salary" props={props} align="right" />
-          <div role="columnheader">Status</div>
-          <div role="columnheader" className="text-right">
-            Actions
-          </div>
-        </div>
-        {rows.map((e) => (
-          <div key={e.id} role="row" className={cn(GRID, "items-center border-b border-slate-100 py-3 text-[15px]")}>
+          <div role="row" className={cn(GRID, "items-center border-b border-slate-100 py-3 text-[15px]")}>
             <div role="cell" className="flex min-w-0 items-center gap-3">
               <div aria-hidden="true" className={cn("flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full text-sm font-bold", avatarClass(e.fullName))}>
                 {initials(e.fullName)}
@@ -81,7 +68,7 @@ export function EmployeeTable(props: Props) {
               <StatusBadge status={e.status} />
             </div>
             <div role="cell" className="flex justify-end gap-2">
-              <Link href={`/employees/${e.id}/edit`} aria-label={`Edit ${e.fullName}`} className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}>
+              <Link href={`/employees/${e.id}/edit`} prefetch={false} aria-label={`Edit ${e.fullName}`} className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}>
                 Edit
               </Link>
               <Button
@@ -94,6 +81,27 @@ export function EmployeeTable(props: Props) {
               </Button>
             </div>
           </div>
+  );
+});
+
+export function EmployeeTable(props: Props) {
+  const { rows, onToggleStatus } = props;
+  return (
+    <div className="overflow-x-auto" role="table" aria-label="Employees">
+      <div className="min-w-[1040px]">
+        <div role="row" className={cn(GRID, "items-center border-b border-line bg-slate-50 py-1 text-[13px] font-semibold uppercase tracking-wide text-muted")}>
+          <SortHeader field="fullName" label="Employee" props={props} />
+          <div role="columnheader">Job title</div>
+          <div role="columnheader">Department</div>
+          <div role="columnheader">Country</div>
+          <SortHeader field="salary" label="Salary" props={props} align="right" />
+          <div role="columnheader">Status</div>
+          <div role="columnheader" className="text-right">
+            Actions
+          </div>
+        </div>
+        {rows.map((e) => (
+          <EmployeeRow key={e.id} employee={e} onToggleStatus={onToggleStatus} />
         ))}
       </div>
     </div>

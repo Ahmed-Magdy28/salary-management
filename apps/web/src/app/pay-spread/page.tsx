@@ -1,14 +1,20 @@
 "use client";
 
 import { COUNTRIES, COUNTRY_BY_CODE } from "@salary/shared";
+import dynamic from "next/dynamic";
 import { useState } from "react";
-import { DistributionChart } from "@/components/insights/distribution-chart";
 import { EmptyState, ErrorState } from "@/components/states";
 import { Card, Skeleton } from "@/components/ui/card";
 import { Select } from "@/components/ui/field";
 import { useDistribution, useFilterOptions } from "@/lib/hooks";
 import { formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
+
+// Recharts is large; load it on demand so the page shell and controls appear first.
+const DistributionChart = dynamic(() => import("@/components/insights/distribution-chart").then((m) => m.DistributionChart), {
+  ssr: false,
+  loading: () => <Skeleton className="h-[340px] w-full" />,
+});
 
 export default function PaySpreadPage() {
   const [country, setCountry] = useState("US");

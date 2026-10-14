@@ -1,8 +1,9 @@
 "use client";
 
 import type { EmployeeDto } from "@salary/shared";
+import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { EmployeeFilters } from "@/components/employees/employee-filters";
@@ -11,7 +12,6 @@ import { Pagination } from "@/components/pagination";
 import { EmptyState, ErrorState } from "@/components/states";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useEmployees, useFilterOptions, useOverview, useSetEmployeeStatus } from "@/lib/hooks";
 import {
   applyChange,
@@ -25,8 +25,9 @@ import {
 import { formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
+const ConfirmDialog = dynamic(() => import("@/components/ui/confirm-dialog").then((m) => m.ConfirmDialog), { ssr: false });
+
 export function EmployeesView() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const state = useMemo(() => parseListState(new URLSearchParams(searchParams.toString())), [searchParams]);
 
@@ -36,13 +37,12 @@ export function EmployeesView() {
   const setStatus = useSetEmployeeStatus();
   const [target, setTarget] = useState<EmployeeDto | null>(null);
 
-  const navigate = useCallback(
-    (next: EmployeeListState) => {
-      const qs = toSearchParams(next).toString();
-      router.replace(qs ? `/employees?${qs}` : "/employees", { scroll: false });
-    },
-    [router],
-  );
+  // The URL only mirrors the filters (so views can be shared). Using the native history API keeps
+  // useSearchParams in sync without asking the server for a new page on every filter change.
+  const navigate = useCallback((next: EmployeeListState) => {
+    const qs = toSearchParams(next).toString();
+    window.history.replaceState(null, "", qs ? `/employees?${qs}` : "/employees");
+  }, []);
   const update = useCallback((patch: Partial<EmployeeListState>) => navigate(applyChange(state, patch)), [navigate, state]);
 
   const onSort = (field: SortField) =>

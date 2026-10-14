@@ -19,6 +19,9 @@ Turborepo + pnpm monorepo with four workspaces: `apps/web` (Next.js), `apps/api`
 ## Performance
 At 10,000 seeded rows every endpoint answers in under 150 ms locally (list, search, filters, grouped percentiles, distribution). Indexes: unique email, (country, department), (country, jobTitle), department, status.
 
+## Frontend performance
+Measured on a production build: the chart page ships 142 kB of JavaScript on first load (243 kB before the chart was lazy-loaded), and the employees page 158 kB (170 kB before the dialog was lazy-loaded). Filter changes use the browser history API instead of a router navigation, so no server round trip sits between a click and the list request. Row links do not prefetch, and rows are memoized.
+
 ## Testing approach
 - `packages/shared`: schema rules, including currency matching the country.
 - `packages/db`: the seed generator is deterministic, unique, valid against the shared schema and realistic.
