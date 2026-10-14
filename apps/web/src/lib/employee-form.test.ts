@@ -30,6 +30,15 @@ describe("validateEmployeeForm", () => {
     }
   });
 
+  it("does not repeat the country error on the derived currency field", () => {
+    const result = validateEmployeeForm({ ...valid, country: "", currency: "" });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.errors.country).toBe("Select an option");
+      expect(result.errors.currency).toBeUndefined();
+    }
+  });
+
   it("flags a zero salary and a bad email", () => {
     const result = validateEmployeeForm({ ...valid, salary: "0", email: "lena@acme" });
     expect(result.ok).toBe(false);

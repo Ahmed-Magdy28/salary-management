@@ -47,5 +47,8 @@ export function validateEmployeeForm(values: EmployeeFormValues): FormResult {
     salary: salaryText === "" ? undefined : Number(salaryText),
   });
   if (result.success) return { ok: true, data: result.data };
-  return { ok: false, errors: issuesToFieldErrors(result.error.issues) };
+  const errors = issuesToFieldErrors(result.error.issues);
+  // Currency is derived from country, so one message on country is enough.
+  if (errors.country) delete errors.currency;
+  return { ok: false, errors };
 }
