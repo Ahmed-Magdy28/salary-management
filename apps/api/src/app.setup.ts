@@ -15,5 +15,6 @@ export function configureApp(app: INestApplication): void {
   // A 10,000-row spreadsheet import is a few MB of JSON; the default 100 kB limit is too small.
   (app as NestExpressApplication).useBodyParser("json", { limit: "5mb" });
   app.setGlobalPrefix("api");
-  app.enableCors({ origin: parseOrigins(process.env.WEB_ORIGIN) });
+  // maxAge lets browsers reuse the permission check for POST/PATCH instead of repeating it every time.
+  app.enableCors({ origin: parseOrigins(process.env.WEB_ORIGIN), maxAge: 86400 });
 }

@@ -29,9 +29,11 @@ export class ApiError extends Error {
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response;
   try {
+    // Only requests with a body declare a JSON content type. A Content-Type header on a GET would make
+    // the browser send a CORS preflight (an extra round trip) before every single read.
     response = await fetch(`${API_URL}${path}`, {
       ...init,
-      headers: { "Content-Type": "application/json", ...init?.headers },
+      headers: { ...(init?.body ? { "Content-Type": "application/json" } : {}), ...init?.headers },
     });
   } catch {
     throw new ApiError("Cannot reach the server. Check your connection and try again.", 0);

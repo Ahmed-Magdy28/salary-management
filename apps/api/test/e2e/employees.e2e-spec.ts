@@ -126,3 +126,33 @@ describe("Employees API (e2e)", () => {
     });
   });
 });
+
+describe("CORS (e2e)", () => {
+  let ctx: TestApp;
+  let http: ReturnType<TestApp["app"]["getHttpServer"]>;
+  const origin = "http://localhost:3000";
+
+  beforeAll(async () => {
+    ctx = await createTestApp();
+    http = ctx.app.getHttpServer();
+  });
+  afterAll(async () => {
+    await ctx.app.close();
+  });
+
+  it("allows the web origin and lets browsers cache the preflight", async () => {
+    const res = await request(http)
+      .options("/api/employees")
+      .set("Origin", origin)
+      .set("Access-Control-Request-Method", "POST")
+      .set("Access-Control-Request-Headers", "content-type")
+      .expect(204);
+    expect(res.headers["access-control-allow-origin"]).toBe(origin);
+    expect(res.headers["access-control-max-age"]).toBe("86400");
+  });
+
+  it("does not allow other origins", async () => {
+    const res = await request(http).get("/api/health").set("Origin", "https://evil.example").expect(200);
+    expect(res.headers["access-control-allow-origin"]).toBeUndefined();
+  });
+});
