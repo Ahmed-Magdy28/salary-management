@@ -1,6 +1,6 @@
 "use client";
 
-import type { CreateEmployeeInput, EmployeeStatus } from "@salary/shared";
+import type { CreateEmployeeInput, EmployeeStatus, ImportRequest } from "@salary/shared";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "./api";
 
@@ -66,4 +66,9 @@ export function useSetEmployeeStatus() {
     mutationFn: ({ id, status }: { id: string; status: EmployeeStatus }) => api.setEmployeeStatus(id, status),
     onSuccess: invalidate,
   });
+}
+
+export function useImportEmployees() {
+  const invalidate = useInvalidateAll();
+  return useMutation({ mutationFn: (rows: ImportRequest["rows"]) => api.importEmployees(rows), onSuccess: invalidate });
 }

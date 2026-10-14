@@ -13,7 +13,8 @@
     "build": "prisma generate && tsc -p tsconfig.build.json",
     "test": "jest",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "seed:ci": "tsx src/seed/run.ts"
+    "seed:ci": "tsx src/seed/run.ts",
+    "seed:if-empty": "tsx src/seed/run.ts --if-empty"
   },
   "dependencies": {
     "@prisma/adapter-pg": "6",

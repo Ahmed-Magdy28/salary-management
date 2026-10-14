@@ -14,6 +14,7 @@ Turborepo + pnpm monorepo with four workspaces: `apps/web` (Next.js), `apps/api`
 | Prisma with the `pg` driver adapter | No native engine to download or deploy | Needs Prisma 6.16+ |
 | Deterministic seed (fixed Faker seed, fixed date window) | Same data every run, so tests and demos repeat | Data looks synthetic |
 | Unit tests avoid the database; a small e2e suite uses a separate test DB | Fast feedback, but real SQL is still tested | e2e needs Postgres running |
+| Excel/CSV import: parsed in the browser, validated twice (preview in the browser, authoritative on the API) with one shared function | HR sees problems before saving; the API never trusts the client; files never leave the browser | The browser needs the spreadsheet libraries (loaded on demand) |
 | Soft delete through `status` | Keeps history and is reversible | Inactive rows stay in the table |
 
 ## Performance

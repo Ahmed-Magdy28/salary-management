@@ -37,6 +37,7 @@ Seed options: `SEED_COUNT` (default 10000) and `SEED_VALUE` (default 20261014) e
 ## Screens
 
 - **Employees** (`/employees`): search, filters, salary range, sort, pagination, add, edit, deactivate. Filters live in the URL.
+- **Import from Excel** (`/employees/import`): upload `.xlsx` or `.csv`, preview ready and problem rows, then import. Safe to repeat.
 - **Add / edit** (`/employees/new`, `/employees/:id/edit`): one form, validated with the shared schema.
 - **Insights** (`/insights`): headline counts and min / P25 / median / mean / P75 / max by country, department or job title.
 - **Pay spread** (`/pay-spread`): salary histogram for a country and optional job title.
@@ -55,6 +56,7 @@ Seed options: `SEED_COUNT` (default 10000) and `SEED_VALUE` (default 20261014) e
 | `GET /api/employees` | List with `search`, `country`, `department`, `jobTitle`, `status`, `minSalary`, `maxSalary` (needs `country`), `sortBy` (`fullName`, `salary`, `hireDate`), `sortOrder`, `page`, `pageSize` |
 | `POST /api/employees` | Create (validated by the shared Zod schema; 400 with field errors, 409 on duplicate email) |
 | `GET /api/employees/:id` | Read one (404 if missing) |
+| `POST /api/employees/import` | Bulk import `{ rows: [{ row, data }] }` (up to 10,000). Valid rows are created in one transaction; invalid, repeated and existing emails are returned with their row numbers |
 | `PATCH /api/employees/:id` | Partial update |
 | `PATCH /api/employees/:id/status` | Deactivate or reactivate |
 | `GET /api/insights/overview` | Headline counts for active employees |
@@ -69,7 +71,7 @@ Percentiles use PostgreSQL `percentile_cont`; histogram bands use `width_bucket`
 
 Neon (Postgres) + Render (API) + Vercel (web). Step-by-step guide: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md). CI runs build, typecheck, unit and e2e tests on every push (`.github/workflows/ci.yml`).
 
-Useful scripts without a `.env` file (the platform provides `DATABASE_URL`): `pnpm db:migrate:deploy` and `pnpm db:seed:ci`.
+Useful scripts without a `.env` file (the platform provides `DATABASE_URL`): `pnpm db:migrate:deploy`, `pnpm db:seed:ci` and `pnpm --filter @salary/db seed:if-empty` (seeds only when the table is empty, safe on every deploy).
 
 ## Performance notes
 

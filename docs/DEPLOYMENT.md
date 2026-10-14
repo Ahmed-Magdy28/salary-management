@@ -1,76 +1,82 @@
 # Deployment guide
 
-Three free services, about 20 minutes:
+| Part | Service | Notes |
+|------|---------|-------|
+| Database | [Neon](https://neon.tech) PostgreSQL | Project `salary-management` |
+| API | [Railway](https://railway.com) | Builds from GitHub, runs migrations and the first seed on deploy |
+| Web | [Vercel](https://vercel.com) | Next.js, root directory `apps/web` |
 
-| Part | Service | Why |
-|------|---------|-----|
-| Database | [Neon](https://neon.tech) (PostgreSQL) | Free, persistent, works with Prisma |
-| API | [Render](https://render.com) web service | Builds from `render.yaml`, no Dockerfile needed |
-| Web | [Vercel](https://vercel.com) | Native Next.js hosting |
-
-Push the repo to GitHub first.
+Railway and Vercel both deploy from a GitHub repository, so push the code first.
 
 ## 0. Check locally first
 
-Before deploying, make sure the migration is accepted by Prisma on your machine:
-
 ```bash
 docker compose up -d && cp .env.example .env && pnpm install
-pnpm db:migrate        # should say "already in sync" or apply 20261014000000_init with no drift warning
+pnpm --filter @salary/db generate && pnpm --filter @salary/shared build
+pnpm db:migrate        # should apply 20261014000000_init with no drift warning
 ```
 
-If Prisma reports drift, delete `packages/db/prisma/migrations/20261014000000_init`, then run `pnpm db:migrate -- --name init` and commit the result.
+If Prisma reports drift, delete `packages/db/prisma/migrations/20261014000000_init`, run `pnpm db:migrate -- --name init`, and commit the result.
 
-## 1. Database on Neon
-
-1. Create a project and copy the **direct** (non-pooled) connection string. It ends with `?sslmode=require`.
-2. From your laptop, create the tables and load the 10,000 employees:
+## 1. Push to GitHub
 
 ```bash
-export DATABASE_URL="postgresql://USER:PASSWORD@HOST/neondb?sslmode=require"
-pnpm db:migrate:deploy
-pnpm db:seed:ci          # about 3 s; safe to re-run, it resets the table
+git remote add origin https://github.com/<you>/salary-management.git
+git push -u origin main
 ```
 
-If the API cannot connect, remove `&channel_binding=require` from the URL.
+Install the Railway and Vercel GitHub apps on that repository when they ask.
 
-## 2. API on Render
+## 2. Database on Neon
 
-1. Render dashboard: **New > Blueprint**, pick the GitHub repo. It reads `render.yaml`.
-2. Set the environment variables when asked:
-   - `DATABASE_URL`: the Neon string from step 1
-   - `WEB_ORIGIN`: leave a placeholder for now (set in step 4)
-3. Deploy. The build runs install, build and `migrate deploy`; the health check is `/api/health`.
-4. Note the URL, for example `https://salary-api.onrender.com`. Open `/api/health`; it should return `{"status":"ok","database":"up"}`.
+Use the **direct** connection string (host without `-pooler`), with only `?sslmode=require`:
 
-The free plan sleeps after about 15 minutes idle, so the first request after a pause can take 30 to 60 seconds. Open the health URL before a demo to wake it.
+```
+postgresql://USER:PASSWORD@ep-xxxx.REGION.aws.neon.tech/salary?sslmode=require
+```
 
-## 3. Web on Vercel
+Remove `channel_binding=require` if the string has it. Never commit this string.
 
-1. **Add New > Project**, import the repo.
-2. **Root Directory:** `apps/web`. Turn on **Include source files outside of the Root Directory**.
-3. Environment variable (must be set before the build, it is baked in):
-   - `NEXT_PUBLIC_API_URL` = `https://salary-api.onrender.com/api`
-4. Deploy. `apps/web/vercel.json` sets the install and build commands.
+## 3. API on Railway
 
-## 4. Connect them
+1. New project, deploy from the GitHub repo (root directory = repository root).
+2. Variables:
+   - `DATABASE_URL`: the Neon string above
+   - `WEB_ORIGIN`: your Vercel URL (set after step 4; several origins can be separated by commas)
+3. Settings:
+   - Build command: `pnpm install --frozen-lockfile --prod=false && pnpm turbo run build --filter=@salary/api && pnpm --filter @salary/db migrate:deploy && pnpm --filter @salary/db seed:if-empty`
+   - Start command: `node apps/api/dist/main.js`
+   - Health check path: `/api/health`
+   - Generate a public domain.
+4. The build creates the tables (`migrate deploy`) and loads the 10,000 employees only if the table is empty, so redeploys never wipe data.
+5. Open `https://<railway-domain>/api/health`; it should return `{"status":"ok","database":"up"}`.
 
-On Render, set `WEB_ORIGIN` to your Vercel URL (for several origins, separate them with commas, for example the production and preview URLs). Render redeploys automatically.
+## 4. Web on Vercel
+
+1. Import the repo. **Root Directory:** `apps/web`, with **Include source files outside of the Root Directory** turned on.
+2. Environment variable (needed at build time): `NEXT_PUBLIC_API_URL` = `https://<railway-domain>/api`
+3. Deploy. `apps/web/vercel.json` sets the install and build commands.
+4. Put the Vercel URL into Railway's `WEB_ORIGIN` and redeploy the API.
 
 ## 5. Check it works
 
-- [ ] `<api>/api/health` returns ok
-- [ ] Employees page shows 50 rows and "9,670 active employees across 8 countries" (the exact count is after the 3% inactive share)
+- [ ] `/api/health` returns ok
+- [ ] Employees page shows 50 rows and about 9,670 active employees across 8 countries
 - [ ] Search "an", filter by Germany, sort by salary
-- [ ] Add an employee, edit the salary, deactivate and reactivate
-- [ ] Insights shows 8 countries with medians; Pay spread shows a histogram
+- [ ] Add, edit, deactivate and reactivate an employee
+- [ ] Import from Excel: upload `apps/web/test/fixtures/employees.xlsx` (2 ready, 1 problem row), import, upload again (everyone skipped)
+- [ ] Insights shows 8 countries; Pay spread shows a histogram
 
 ## Troubleshooting
 
 | Symptom | Likely cause |
 |---------|--------------|
-| Browser console shows a CORS error | `WEB_ORIGIN` on Render does not match the Vercel URL exactly (no path) |
-| Pages show "Cannot reach the server" | `NEXT_PUBLIC_API_URL` was set after the build; redeploy the web app. Or the API is waking up |
-| API build fails at `migrate deploy` | `DATABASE_URL` missing or wrong on Render |
-| `P1001` can't reach database | Use the direct Neon URL with `sslmode=require` |
-| Employees list empty | The seed did not run against the production database |
+| Browser console shows a CORS error | `WEB_ORIGIN` does not match the Vercel URL exactly (no path, no trailing slash needed) |
+| Pages say "Cannot reach the server" | `NEXT_PUBLIC_API_URL` was set after the web build (redeploy it), or it is missing `/api` |
+| Build fails at `migrate deploy` | `DATABASE_URL` missing or wrong; use the direct Neon URL with `sslmode=require` |
+| `P3005` database schema is not empty | Tables were created by hand. Run `prisma migrate resolve --applied 20261014000000_init` once |
+| Employees list empty | The seed step did not run (check the build logs) |
+
+## Alternative: Render
+
+`render.yaml` is a Blueprint for the API on Render with the same build steps.

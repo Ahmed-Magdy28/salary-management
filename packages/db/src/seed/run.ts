@@ -6,10 +6,15 @@ const BATCH_SIZE = 1000;
 async function main(): Promise<void> {
   const count = Number(process.env.SEED_COUNT ?? DEFAULT_COUNT);
   const seed = Number(process.env.SEED_VALUE ?? DEFAULT_SEED);
+  const onlyIfEmpty = process.argv.includes("--if-empty");
   const prisma = createPrismaClient();
   const started = Date.now();
 
   try {
+    if (onlyIfEmpty && (await prisma.employee.count()) > 0) {
+      console.log("Employees already exist, skipping seed (--if-empty).");
+      return;
+    }
     const employees = generateEmployees(count, seed);
     await prisma.employee.deleteMany();
 

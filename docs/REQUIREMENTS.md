@@ -14,7 +14,8 @@ HR manages salaries in Excel, which is slow, error-prone, and makes questions li
 4. **Pay-spread view**: salary histogram for a country and optional job title, to spot outliers.
 5. **Validation**: one shared schema for API and UI (required fields, positive salary, valid country/currency, unique email).
 6. **Seed script**: 10,000 realistic employees across ~8 countries (fixed random seed).
-7. *Stretch:* cross-country USD comparison using a static rate table.
+7. **Import from Excel/CSV**: upload `.xlsx` or `.csv`, preview what is valid and what needs fixing, import the valid rows, skip people who already exist.
+8. *Stretch:* cross-country USD comparison using a static rate table.
 
 ## Approach
 - **Monorepo (Turborepo + pnpm):** `apps/web` (Next.js, Tailwind, TanStack Query, shadcn/ui, Recharts), `apps/api` (NestJS on Express), `packages/db` (Prisma schema, migrations, Faker seed), `packages/shared` (Zod schemas, types, constants).
@@ -27,7 +28,7 @@ HR manages salaries in Excel, which is slow, error-prone, and makes questions li
 | Item | Why |
 |------|-----|
 | Authentication / roles | One persona; adds effort, not core value. First v2 item. |
-| CSV import | Separate validation and error-reporting problem; seed covers data needs. |
+| Live Excel sync, export to Excel | Import is a one-time move off Excel; keeping two sources of truth would recreate the original problem. Export is a natural next step. |
 | Payroll, tax, payslips | Different problem (paying people vs. analyzing pay). |
 | Bonuses, equity, benefits | Base salary keeps the model and insights unambiguous. |
 | Live FX rates | External dependency; makes numbers non-deterministic. |
@@ -38,4 +39,4 @@ HR manages salaries in Excel, which is slow, error-prone, and makes questions li
 - Prisma has no percentile API: use `percentile_cont` behind a typed, tested service.
 - Slow seeding: use `createMany` in batches.
 - Free-tier cold starts: warm the API before the demo.
-- Scope creep: ship features 1 to 6 first, 7 only if time remains.
+- Scope creep: ship features 1 to 7 first, 8 only if time remains.

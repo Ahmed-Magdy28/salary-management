@@ -5,6 +5,8 @@ import type {
   EmployeeDto,
   EmployeeStatus,
   FilterOptionsDto,
+  ImportRequest,
+  ImportResultDto,
   OverviewDto,
   Paginated,
   SalaryStatsRow,
@@ -59,6 +61,8 @@ export const api = {
     request<EmployeeDto>(`/employees/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(input) }),
   setEmployeeStatus: (id: string, status: EmployeeStatus) =>
     request<EmployeeDto>(`/employees/${encodeURIComponent(id)}/status`, { method: "PATCH", body: JSON.stringify({ status }) }),
+  importEmployees: (rows: ImportRequest["rows"]) =>
+    request<ImportResultDto>("/employees/import", { method: "POST", body: JSON.stringify({ rows }) }),
   getOverview: () => request<OverviewDto>("/insights/overview"),
   getSalaryStats: (groupBy: string, country?: string) =>
     request<SalaryStatsRow[]>(`/insights/salary-stats${toQueryString({ groupBy, country })}`),

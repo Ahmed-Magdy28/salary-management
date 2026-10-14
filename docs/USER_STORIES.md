@@ -144,6 +144,17 @@
 - The UI uses the same shared schema, so the rules cannot drift.
 - Errors name the field and what is wrong.
 
+### US-4.3 Import from Excel or CSV (P1)
+**As an** HR Manager, **I want to** upload my existing spreadsheet, **so that** I do not retype 10,000 rows to move off Excel.
+
+**Acceptance criteria**
+- I can choose or drop an `.xlsx` or `.csv` file (first sheet, up to 10,000 rows) and download a template.
+- Column headers are matched by common names (for example "E-mail", "Position", "Start date"); missing required columns are named and block the import.
+- Before anything is saved I see how many rows are ready and which rows need attention, with the spreadsheet row number and a plain-language reason.
+- Countries can be written as names, currency follows the country, and real Excel dates and numbers like "72,000" are understood. Ambiguous day/month text dates are rejected, not guessed.
+- Only valid rows are imported, in one transaction. Rows repeated in the file or already in the system are skipped and reported, so uploading the same file twice is safe.
+- The same validation rules apply as for adding a person by hand.
+
 ### US-4.2 Seed realistic data (P0)
 **As a** developer or reviewer, **I want to** run one command that loads 10,000 realistic employees, **so that** I can demo and test with representative data.
 
@@ -184,11 +195,11 @@
 
 | Milestone | Stories |
 |-----------|---------|
-| 1. Foundation | Monorepo scaffold, shared schemas, Prisma schema, US-4.2, US-4.1 |
+| 1. Foundation | Monorepo scaffold, shared schemas, Prisma schema, US-4.2, US-4.1, US-4.3 |
 | 2. Employee API | US-1.1 to US-1.4, US-2.1 to US-2.4 |
 | 3. Insights API | US-3.1 to US-3.6 |
 | 4. UI | Employee list and form, then dashboard (US-5.2 throughout) |
 | 5. Release | US-5.1, US-5.3, deployment, demo; US-3.7 only if time remains |
 
 ## Out of Scope
-Authentication, CSV import, payroll and tax, bonuses and equity, live FX rates, approval workflows, audit and salary history, HRIS integrations. Reasons are in `docs/REQUIREMENTS.md`.
+Authentication, live Excel sync and export, payroll and tax, bonuses and equity, live FX rates, approval workflows, audit and salary history, HRIS integrations. Reasons are in `docs/REQUIREMENTS.md`.

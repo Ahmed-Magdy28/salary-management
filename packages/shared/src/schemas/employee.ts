@@ -22,9 +22,15 @@ const employeeFields = z.object({
   fullName: z.string().trim().min(1, "Full name is required").max(120),
   email: z.string().trim().toLowerCase().email("Enter a valid email address").max(200),
   jobTitle: z.string().trim().min(1, "Job title is required").max(100),
-  department: z.enum(DEPARTMENTS),
-  country: z.enum(COUNTRY_CODES),
-  currency: z.enum(CURRENCY_CODES),
+  department: z.enum(DEPARTMENTS, {
+    errorMap: () => ({ message: `Department must be one of: ${DEPARTMENTS.join(", ")}` }),
+  }),
+  country: z.enum(COUNTRY_CODES, {
+    errorMap: () => ({ message: `Country must be one of: ${COUNTRY_CODES.join(", ")} (or the full country name)` }),
+  }),
+  currency: z.enum(CURRENCY_CODES, {
+    errorMap: () => ({ message: `Currency must be one of: ${CURRENCY_CODES.join(", ")}` }),
+  }),
   salary: z
     .number({ invalid_type_error: "Salary must be a number" })
     .int("Salary must be a whole number")

@@ -76,6 +76,9 @@ export function EmployeesView() {
           </p>
         </div>
         <div className="flex-1" />
+        <Link href="/employees/import" className={cn(buttonVariants({ variant: "secondary" }))}>
+          Import from Excel
+        </Link>
         <Link href="/employees/new" className={cn(buttonVariants({ variant: "primary" }))}>
           + Add employee
         </Link>

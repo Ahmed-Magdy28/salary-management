@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import type { ImportFailure, ImportRequest, ImportResultDto } from "@salary/shared";
+import { partitionImportRows, type ImportFailure, type ImportRequest, type ImportResultDto } from "@salary/shared";
 import { PrismaService } from "../prisma/prisma.service";
-import { chunk, partitionImportRows } from "./employee-import";
+import { chunk } from "./employee-import";
 
 const BATCH_SIZE = 1000;
 
