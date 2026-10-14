@@ -2,7 +2,7 @@
 
 Web app for an HR Manager to manage salaries for 10,000 employees across countries and to answer "how do we pay people?".
 
-Docs: [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md) · [`docs/USER_STORIES.md`](docs/USER_STORIES.md) · [`docs/DESIGN_NOTES.md`](docs/DESIGN_NOTES.md) · [`docs/wireframes`](docs/wireframes/README.md)
+Docs: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) · [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md) · [`docs/USER_STORIES.md`](docs/USER_STORIES.md) · [`docs/DESIGN_NOTES.md`](docs/DESIGN_NOTES.md) · [`docs/wireframes`](docs/wireframes/README.md)
 
 ## Stack
 
@@ -63,3 +63,9 @@ Seed options: `SEED_COUNT` (default 10000) and `SEED_VALUE` (default 20261014) e
 | `GET /api/health` | Liveness and database check |
 
 Percentiles use PostgreSQL `percentile_cont`; histogram bands use `width_bucket`. At 10,000 rows every endpoint answers in well under 300 ms locally.
+
+## Deployment
+
+Neon (Postgres) + Render (API) + Vercel (web). Step-by-step guide: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md). CI runs build, typecheck, unit and e2e tests on every push (`.github/workflows/ci.yml`).
+
+Useful scripts without a `.env` file (the platform provides `DATABASE_URL`): `pnpm db:migrate:deploy` and `pnpm db:seed:ci`.

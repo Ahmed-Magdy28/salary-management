@@ -32,4 +32,5 @@ Claude generated the requirements, user stories, wireframes and first drafts of 
 ## Known gaps
 - No authentication (out of scope, see requirements).
 - Cross-country USD comparison (stretch) is not built.
-- Deployment and the demo video are still to do.
+- The live deployment link and demo video are added once deployed (see `docs/DEPLOYMENT.md` and `docs/DEMO_SCRIPT.md`).
+- The CI workflow and Render/Vercel configs were checked by building from a clean clone, but they have not run on the real services yet.
