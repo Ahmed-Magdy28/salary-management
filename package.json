@@ -4,6 +4,8 @@
   "packageManager": "pnpm@9.15.9",
   "scripts": {
     "build": "turbo run build",
+    "build:api": "turbo run build --filter=@salary/api",
+    "start:api": "node apps/api/dist/main.js",
     "dev": "turbo run dev --parallel",
     "test": "turbo run test",
     "lint": "turbo run lint",
