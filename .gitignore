@@ -5,3 +5,4 @@ dist
 coverage
 .env
 *.tsbuildinfo
+0001-fix-deploy-build-the-API-from-the-Dockerfile-on-Rail.patch
